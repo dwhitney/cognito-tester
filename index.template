@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8" />
+    <title>Cognito Tester</title>
+    <style>
+      /**  CSS Reset **/
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed, 
+      figure, figcaption, footer, header, hgroup, 
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+      	margin: 0;
+      	padding: 0;
+      	border: 0;
+      	font-size: 100%;
+      	font: inherit;
+      	vertical-align: baseline;
+      }
+      /* HTML5 display-role reset for older browsers */
+      article, aside, details, figcaption, figure, 
+      footer, header, hgroup, menu, nav, section {
+      	display: block;
+      }
+      body {
+      	line-height: 1;
+      }
+      ol, ul {
+      	list-style: none;
+      }
+      blockquote, q {
+      	quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+      	content: '';
+      	content: none;
+      }
+      table {
+      	border-collapse: collapse;
+      	border-spacing: 0;
+      }
+    </style>
+    <style>
+      /** Application Styles **/
+      body{
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      h1{
+        font-size: 24px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      h2{
+        font-size: 18px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      a{
+        color: blue;
+        align-self:center;
+        border: solid black 2px;
+        border-radius: 10px;
+        margin-right: 16px;
+        margin-bottom: 16px;
+        outline: none;
+        padding: 8px;
+        text-decoration: none;
+        word-wrap: break-word;
+      }
+
+      hr{
+        background-color: black;
+        border:none;
+        height: 5px;
+        width: calc(100vw - 32px);
+      }
+
+      table{
+        border: solid black 1px;
+      }
+
+      td {
+        padding: 8px;
+        word-wrap: break-word;
+      }
+
+      p {
+        padding: 8px 16px 16px 16px;
+        font-size:14px;
+        color:dodgerblue;
+      }
+
+      em{
+        color: red;
+        font-weight: bold;
+      }
+
+      td:nth-child(1){
+        width: 100px;
+        max-width: 100px;
+      }
+
+      td:nth-child(2){
+        max-width: calc(100vw - 100px - 64px);
+      }
+
+
+      .form-row{
+        display: flex;
+        padding: 16px 16px 0 16px;
+      }
+
+      .form-row > label {
+        align-self: center;
+        padding-right: 16px;
+        flex-grow: 0;
+        width: 200px
+      }
+
+      .form-row > input {
+        flex-grow: 2;
+        padding: 8px;
+      }
+
+      #sites {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 16px;
+      }
+
+      .user {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .loginButton {
+        justify-content: center;
+      }
+
+      .table {
+        align-self: center;
+        margin-bottom: 16px;
+      }
+
+      .section-text{
+        text-align: center;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1>Cognito Tester</h1>
+    <p class="section-text">Host this from an HTTP server: python -m SimpleHTTPServer 1234</p>
+    <p class="section-text">Or with python 3: python -m http.server 1234</p>
+    <div class="form-row">
+      <label for="authenticationDomain">Authentication Domain</label>
+      <input type="text" id="authenticationDomain"/>
+    </div>
+    <p>The domain where Cognito authentication is carried out via hosted UI and OAuth. For example, we've stubbed out environmental-affairs.auth.us-east-1.amazoncognito.com</p>
+    <div class="form-row">
+      <label for="redirectURI">Redirect URI</label>
+      <input type="text" id="redirectURI"/>
+    </div>
+    <p>Where the user is redirected after authentication has been performed. I'd imagine 99.99% of the time, it's the same URL that this page is being served from</p>
+    <div class="form-row">
+      <label for="userPoolId">User Pool ID</label>
+      <input type="text" id="userPoolId"/>
+    </div>
+    <p>The id of the Cognito User Pool. Currently it can be found in "User Pools" dashboard by clicking "General settings". It's called "Pool Id"</p>
+    <div class="form-row">
+      <label for="client_id">Client ID</label>
+      <input type="text" id="client_id"/>
+    </div>
+    <p>This one is a bit confusing. Currently this can be found in the "User Pools" dashboard by clicking "App client settings". At the top, it's the value labeled "ID", <em>*not*</em> the one label "App Client"</p>
+    <div class="form-row">
+      <label for="ssoSites">SSO Sites</label>
+      <input type="text" id="ssoSites"/>
+    </div>
+    <p>This is a comma separated list of the sites participating in SSO. This is just here as a conveniance - it makes the links below</p>
+    <div id="sites"></div>
+    <hr/>
+    <div id="user" class="user"></div>
+  </body>
+  <script>
+    SED_REPLACE
+  </script>
+</html>
