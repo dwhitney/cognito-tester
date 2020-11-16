@@ -160,6 +160,10 @@
         text-align: center;
       }
 
+      .scope{
+        padding-right:16px;
+      }
+
     </style>
   </head>
   <body>
@@ -189,6 +193,11 @@
     <div class="form-row">
       <label for="ssoSites">SSO Sites</label>
       <input type="text" id="ssoSites"/>
+    </div>
+    <p>The scopes you'd like from Cognito/OAuth</p>
+    <div class="form-row">
+      <label>Scopes</label>
+      <span id="scopes"></span>
     </div>
     <p>This is a comma separated list of the sites participating in SSO. This is just here as a conveniance - it makes the links below</p>
     <div id="sites"></div>

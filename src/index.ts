@@ -12,6 +12,7 @@ interface LoggedIn {
 interface NotLoggedIn { type: "NotLoggedIn" }
 
 type User = LoggedIn | NotLoggedIn
+type Scope = "phone" | "email" | "openid" | "profile" | "aws.cognito.signin.user.admin"
 
 type Model =
   { authenticationDomain: string,
@@ -19,6 +20,7 @@ type Model =
     userPoolId: string
     ssoSites: string,
     redirectURI: string,
+    scopes: Scope[]
   }
 
 function defaultModel(): Model{
@@ -29,14 +31,17 @@ function defaultModel(): Model{
     client_id: "",
     userPoolId: "",
     ssoSites: "",
-    redirectURI
+    redirectURI,
+    scopes: [ "email", "phone", "openid", "profile" ]
   })
 }
 function getModel(): Model {
   try{
     const result = localStorage.getItem("model")
     if(result === null ) return defaultModel()
-    else return JSON.parse(result)
+    const json = JSON.parse(result)
+    if(!json.scopes) json.scopes = defaultModel().scopes
+    return json
   } catch(e){
     console.error("There was an error parsing the value returned from localStorage", e)
     return defaultModel()
@@ -65,6 +70,40 @@ function setUser(user: User){
   localStorage.setItem("user", JSON.stringify(user))
 }
 
+function addScope(scope: Scope, checked: boolean){
+  return function(){
+    const user = getUser()
+    const model = getModel()
+    let scopes = model.scopes.filter(s => s !== scope)
+    if(!checked) scopes = scopes.concat([scope])
+    model.scopes = scopes
+    setModel(model)
+    applyModel(model, user) 
+    applyUser(model, user)
+  }
+}
+
+const makeScopes = ({ scopes } : Model) => {
+  const scopesEl = document.getElementById("scopes");
+  if(scopesEl) scopesEl.innerHTML = ""
+  const allScopes: Scope[] = ["phone", "email", "openid", "aws.cognito.signin.user.admin", "profile"]
+  allScopes.forEach( (scope: Scope) => {
+    const checked = scopes.indexOf(scope) >= 0
+    const scopeButton =  document.createElement("input")
+    scopeButton.setAttribute("type", "checkbox")
+    //@ts-ignore
+    scopeButton.addEventListener('click', addScope(scope, checked))
+    if(checked) scopeButton.setAttribute("checked", "true")
+    const scopeLabel = document.createElement("span")
+    scopeLabel.innerText = scope
+    const scopeSpan = document.createElement("span")
+    scopeSpan.setAttribute("class", "scope")
+    scopeSpan.appendChild(scopeButton)
+    scopeSpan.appendChild(scopeLabel)
+    scopesEl?.appendChild(scopeSpan)
+  })
+}
+
 const makeSitesHTML = ({ ssoSites }: Model, user: User) => {
   if(user.type == "LoggedIn"){
     const sites = ssoSites.split(",").map(str => str.trim())
@@ -83,7 +122,7 @@ function makeNotLoggedInHTML(model: Model){
   const anchor = document.createElement("a")
 
   const href = "https://" + model.authenticationDomain + 
-    `/login?client_id=${model.client_id}&response_type=code&email&redirect_uri=${model.redirectURI}`
+    `/login?client_id=${model.client_id}&response_type=code&scope=${model.scopes.join("+")}&redirect_uri=${model.redirectURI}`
   anchor.setAttribute("href", href)
   anchor.innerText = "Login"
 
@@ -189,7 +228,8 @@ function handleInputEvent<K extends keyof Model>(key: K){
     const user = getUser()
     const el = document.getElementById(key)
     const value = (el as HTMLInputElement).value
-    if(value){
+    if(value && key !== "scopes"){
+      //@ts-ignore
       model[key] = value
       setModel(model)
       applyModel(model, user)
@@ -225,6 +265,7 @@ function attachEventListeners(){
 
 function applyModel(model: Model, user: User){
   setFields(model)
+  makeScopes(model)
   makeSitesHTML(model, user)
 }
 
