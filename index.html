@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8" />
+    <title>Cognito Tester</title>
+    <style>
+      /**  CSS Reset **/
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed, 
+      figure, figcaption, footer, header, hgroup, 
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+      	margin: 0;
+      	padding: 0;
+      	border: 0;
+      	font-size: 100%;
+      	font: inherit;
+      	vertical-align: baseline;
+      }
+      /* HTML5 display-role reset for older browsers */
+      article, aside, details, figcaption, figure, 
+      footer, header, hgroup, menu, nav, section {
+      	display: block;
+      }
+      body {
+      	line-height: 1;
+      }
+      ol, ul {
+      	list-style: none;
+      }
+      blockquote, q {
+      	quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+      	content: '';
+      	content: none;
+      }
+      table {
+      	border-collapse: collapse;
+      	border-spacing: 0;
+      }
+    </style>
+    <style>
+      /** Application Styles **/
+      body{
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      h1{
+        font-size: 24px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      h2{
+        font-size: 18px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      a{
+        color: blue;
+        align-self:center;
+        border: solid black 2px;
+        border-radius: 10px;
+        margin-right: 16px;
+        margin-bottom: 16px;
+        outline: none;
+        padding: 8px;
+        text-decoration: none;
+        word-wrap: break-word;
+      }
+
+      hr{
+        background-color: black;
+        border:none;
+        height: 5px;
+        width: calc(100vw - 32px);
+      }
+
+      table{
+        border: solid black 1px;
+      }
+
+      td {
+        padding: 8px;
+        word-wrap: break-word;
+      }
+
+      p {
+        padding: 8px 16px 16px 16px;
+        font-size:14px;
+        color:dodgerblue;
+      }
+
+      em{
+        color: red;
+        font-weight: bold;
+      }
+
+      td:nth-child(1){
+        width: 100px;
+        max-width: 100px;
+      }
+
+      td:nth-child(2){
+        max-width: calc(100vw - 100px - 64px);
+      }
+
+
+      .form-row{
+        display: flex;
+        padding: 16px 16px 0 16px;
+      }
+
+      .form-row > label {
+        align-self: center;
+        padding-right: 16px;
+        flex-grow: 0;
+        width: 200px
+      }
+
+      .form-row > input {
+        flex-grow: 2;
+        padding: 8px;
+      }
+
+      #sites {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 16px;
+      }
+
+      .user {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .loginButton {
+        justify-content: center;
+      }
+
+      .table {
+        align-self: center;
+        margin-bottom: 16px;
+      }
+
+      .section-text{
+        text-align: center;
+      }
+
+      .scope{
+        padding-right:16px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1>Cognito Tester</h1>
+    <p class="section-text">Host this from an HTTP server: python -m SimpleHTTPServer 1234</p>
+    <p class="section-text">Or with python 3: python -m http.server 1234</p>
+    <div class="form-row">
+      <label for="authenticationDomain">Authentication Domain</label>
+      <input type="text" id="authenticationDomain"/>
+    </div>
+    <p>The domain where Cognito authentication is carried out via hosted UI and OAuth. For example, we've stubbed out environmental-affairs.auth.us-east-1.amazoncognito.com</p>
+    <div class="form-row">
+      <label for="redirectURI">Redirect URI</label>
+      <input type="text" id="redirectURI"/>
+    </div>
+    <p>Where the user is redirected after authentication has been performed. I'd imagine 99.99% of the time, it's the same URL that this page is being served from</p>
+    <div class="form-row">
+      <label for="userPoolId">User Pool ID</label>
+      <input type="text" id="userPoolId"/>
+    </div>
+    <p>The id of the Cognito User Pool. Currently it can be found in "User Pools" dashboard by clicking "General settings". It's called "Pool Id"</p>
+    <div class="form-row">
+      <label for="client_id">Client ID</label>
+      <input type="text" id="client_id"/>
+    </div>
+    <p>This one is a bit confusing. Currently this can be found in the "User Pools" dashboard by clicking "App client settings". At the top, it's the value labeled "ID", <em>*not*</em> the one label "App Client"</p>
+    <div class="form-row">
+      <label for="ssoSites">SSO Sites</label>
+      <input type="text" id="ssoSites"/>
+    </div>
+    <p>The scopes you'd like from Cognito/OAuth</p>
+    <div class="form-row">
+      <label>Scope</label>
+      <span id="scopes"></span>
+    </div>
+    <p>This is a comma separated list of the sites participating in SSO. This is just here as a conveniance - it makes the links below</p>
+    <div id="sites"></div>
+    <hr/>
+    <div id="user" class="user"></div>
+  </body>
+  <script>
+"use strict";
+function defaultModel() {
+    var port = (document.location.port === "80" || document.location.port === "443" || document.location.port === "") ? "" : (":" + document.location.port);
+    var redirectURI = document.location.protocol + "//" + document.location.hostname + port;
+    return ({
+        authenticationDomain: "",
+        client_id: "",
+        userPoolId: "",
+        ssoSites: "",
+        redirectURI: redirectURI,
+        scopes: ["email", "phone", "openid", "profile"]
+    });
+}
+function getModel() {
+    try {
+        var result = localStorage.getItem("model");
+        if (result === null)
+            return defaultModel();
+        var json = JSON.parse(result);
+        if (!json.scopes)
+            json.scopes = defaultModel().scopes;
+        return json;
+    }
+    catch (e) {
+        console.error("There was an error parsing the value returned from localStorage", e);
+        return defaultModel();
+    }
+}
+function setModel(model) {
+    localStorage.setItem("model", JSON.stringify(model));
+}
+function defaultUser() {
+    return ({ type: "NotLoggedIn" });
+}
+function getUser() {
+    try {
+        var result = localStorage.getItem("user");
+        if (result === null)
+            return defaultUser();
+        else
+            return JSON.parse(result);
+    }
+    catch (e) {
+        console.error("There was an error parsing the value returned from localStorage", e);
+        return defaultUser();
+    }
+}
+function setUser(user) {
+    localStorage.setItem("user", JSON.stringify(user));
+}
+function addScope(scope, checked) {
+    return function () {
+        var user = getUser();
+        var model = getModel();
+        var scopes = model.scopes.filter(function (s) { return s !== scope; });
+        if (!checked)
+            scopes = scopes.concat([scope]);
+        model.scopes = scopes;
+        setModel(model);
+        applyModel(model, user);
+        applyUser(model, user);
+    };
+}
+var makeScopes = function (_a) {
+    var scopes = _a.scopes;
+    var scopesEl = document.getElementById("scopes");
+    if (scopesEl)
+        scopesEl.innerHTML = "";
+    var allScopes = ["phone", "email", "openid", "aws.cognito.signin.user.admin", "profile"];
+    allScopes.forEach(function (scope) {
+        var checked = scopes.indexOf(scope) >= 0;
+        var scopeButton = document.createElement("input");
+        scopeButton.setAttribute("type", "checkbox");
+        //@ts-ignore
+        scopeButton.addEventListener('click', addScope(scope, checked));
+        if (checked)
+            scopeButton.setAttribute("checked", "true");
+        var scopeLabel = document.createElement("span");
+        scopeLabel.innerText = scope;
+        var scopeSpan = document.createElement("span");
+        scopeSpan.setAttribute("class", "scope");
+        scopeSpan.appendChild(scopeButton);
+        scopeSpan.appendChild(scopeLabel);
+        scopesEl === null || scopesEl === void 0 ? void 0 : scopesEl.appendChild(scopeSpan);
+    });
+};
+var makeSitesHTML = function (_a, user) {
+    var ssoSites = _a.ssoSites;
+    if (user.type == "LoggedIn") {
+        var sites = ssoSites.split(",").map(function (str) { return str.trim(); });
+        var sitesEl_1 = document.getElementById("sites");
+        if (sitesEl_1) {
+            sitesEl_1.innerHTML = "";
+        }
+        sites.forEach(function (site) {
+            var anchor = document.createElement("a");
+            anchor.setAttribute("href", site);
+            anchor.innerText = site;
+            sitesEl_1 === null || sitesEl_1 === void 0 ? void 0 : sitesEl_1.appendChild(anchor);
+        });
+    }
+};
+function makeNotLoggedInHTML(model) {
+    var anchor = document.createElement("a");
+    var href = "https://" + model.authenticationDomain +
+        ("/login?client_id=" + model.client_id + "&response_type=code&scope=" + model.scopes.join("+") + "&redirect_uri=" + model.redirectURI);
+    anchor.setAttribute("href", href);
+    anchor.innerText = "Login";
+    var userEl = document.getElementById("user");
+    if (userEl) {
+        userEl.innerHTML = "";
+        userEl.setAttribute("class", "user loginButton");
+        userEl.appendChild(anchor);
+    }
+}
+function jsonTable(obj) {
+    function makeRow(label, value) {
+        var tr = document.createElement("tr");
+        var labelCell = document.createElement("td");
+        labelCell.innerText = label;
+        var valueCell = document.createElement("td");
+        valueCell.innerText = value;
+        tr.appendChild(labelCell);
+        tr.appendChild(valueCell);
+        return tr;
+    }
+    var table = document.createElement("table");
+    var tbody = document.createElement("tbody");
+    Object.keys(obj).forEach(function (key) {
+        var value = obj[key];
+        var str = (typeof value === "string") ? value : value.toString();
+        tbody.appendChild(makeRow(key, str));
+    });
+    table.appendChild(tbody);
+    var div = document.createElement("div");
+    div.setAttribute("class", "table");
+    div.appendChild(table);
+    return div;
+}
+function makeSectionText(name, text) {
+    var h2 = document.createElement("h2");
+    h2.innerText = name;
+    var p = document.createElement("p");
+    p.setAttribute("class", "section-text");
+    p.innerText = text;
+    return [h2, p];
+}
+function makeLoggedInHTML(model, user) {
+    model;
+    user;
+    var anchor = document.createElement("a");
+    anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        console.log("Click!");
+        localStorage.removeItem("user");
+        applyUser(model, defaultUser());
+    });
+    anchor.setAttribute("href", "");
+    anchor.innerText = "Logout";
+    document.getElementById("user");
+    var userEl = document.getElementById("user");
+    if (userEl) {
+        userEl.innerHTML = "";
+        userEl.appendChild(anchor);
+        makeSectionText("Credentials", "These are the credentials returned by the OAuth process")
+            .forEach(function (el) { return userEl.appendChild(el); });
+        userEl.appendChild(jsonTable(user.contents));
+        try {
+            var _a = user.contents.id_token.split("."), part0 = _a[0], part1 = _a[1];
+            var decoded0 = atob(part0);
+            var decoded1 = atob(part1);
+            makeSectionText("id_token part 0", "I've base64 decoded the different parts of the id_token, for convenience")
+                .forEach(function (el) { return userEl.appendChild(el); });
+            userEl.appendChild(jsonTable(JSON.parse(decoded0)));
+            makeSectionText("id_token part 1", "I've base64 decoded the different parts of the id_token, for convenience");
+            userEl.appendChild(jsonTable(JSON.parse(decoded1)));
+        }
+        catch (e) {
+            console.error("Error decoding id_token", e);
+        }
+    }
+}
+function makeUserHTML(model, user) {
+    switch (user.type) {
+        case "NotLoggedIn": return makeNotLoggedInHTML(model);
+        case "LoggedIn": return makeLoggedInHTML(model, user);
+    }
+}
+function handleInputEvent(key) {
+    return function () {
+        var model = getModel();
+        var user = getUser();
+        var el = document.getElementById(key);
+        var value = el.value;
+        if (value && key !== "scopes") {
+            //@ts-ignore
+            model[key] = value;
+            setModel(model);
+            applyModel(model, user);
+        }
+    };
+}
+function setField(key, value) {
+    var field = document.getElementById(key);
+    if (field)
+        field.value = value;
+}
+function setFields(model) {
+    setField("authenticationDomain", model.authenticationDomain);
+    setField("userPoolId", model.userPoolId);
+    setField("client_id", model.client_id);
+    setField("ssoSites", model.ssoSites);
+    setField("redirectURI", model.redirectURI);
+}
+function attachEventListener(key) {
+    var field = document.getElementById(key);
+    field === null || field === void 0 ? void 0 : field.addEventListener("input", handleInputEvent(key));
+}
+function attachEventListeners() {
+    attachEventListener("authenticationDomain");
+    attachEventListener("client_id");
+    attachEventListener("userPoolId");
+    attachEventListener("ssoSites");
+    attachEventListener("redirectURI");
+}
+function applyModel(model, user) {
+    setFields(model);
+    makeScopes(model);
+    makeSitesHTML(model, user);
+}
+function applyUser(model, user) {
+    makeUserHTML(model, user);
+}
+function getToken(code, model) {
+    var url = "https://" + model.authenticationDomain + "/oauth2/token";
+    var body = "grant_type=authorization_code&client_id=" + model.client_id + "&code=" + code + "&redirect_uri=" + model.redirectURI;
+    var headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    return fetch(url, { method: "POST", body: body, headers: headers })
+        .then(function (response) { return response.json(); })
+        .then(function (contents) { return ({ type: "LoggedIn", contents: contents }); });
+}
+function handleCode(model) {
+    var url = new URL(document.location.href);
+    var code = url.searchParams.get("code");
+    if (code) {
+        getToken(code, model).then(function (user) {
+            var port = (document.location.port === "80" || document.location.port === "443" || document.location.port === "") ? "" : (":" + document.location.port);
+            var thisUrl = document.location.protocol + "//" + document.location.hostname + port;
+            console.log(thisUrl);
+            console.log(history.replaceState({}, '', thisUrl));
+            setUser(user);
+            var latestModel = getModel();
+            applyModel(latestModel, user);
+            applyUser(latestModel, user);
+        });
+    }
+}
+(function () {
+    var model = getModel();
+    var user = getUser();
+    attachEventListeners();
+    applyModel(model, user);
+    applyUser(model, user);
+    handleCode(model);
+})();
+  </script>
+</html>
