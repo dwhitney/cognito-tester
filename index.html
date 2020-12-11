@@ -191,15 +191,10 @@
     </div>
     <p>This one is a bit confusing. Currently this can be found in the "User Pools" dashboard by clicking "App client settings". At the top, it's the value labeled "ID", <em>*not*</em> the one label "App Client"</p>
     <div class="form-row">
-      <label for="ssoSites">SSO Sites</label>
-      <input type="text" id="ssoSites"/>
-    </div>
-    <p>The scopes you'd like from Cognito/OAuth</p>
-    <div class="form-row">
       <label>Scope</label>
       <span id="scopes"></span>
     </div>
-    <p>This is a comma separated list of the sites participating in SSO. This is just here as a conveniance - it makes the links below</p>
+    <p>The scopes you'd like from Cognito/OAuth</p>
     <div id="sites"></div>
     <hr/>
     <div id="user" class="user"></div>
@@ -213,7 +208,6 @@ function defaultModel() {
         authenticationDomain: "",
         client_id: "",
         userPoolId: "",
-        ssoSites: "",
         redirectURI: redirectURI,
         scopes: ["email", "phone", "openid", "profile"]
     });
@@ -264,7 +258,7 @@ function addScope(scope, checked) {
             scopes = scopes.concat([scope]);
         model.scopes = scopes;
         setModel(model);
-        applyModel(model, user);
+        applyModel(model);
         applyUser(model, user);
     };
 }
@@ -290,22 +284,6 @@ var makeScopes = function (_a) {
         scopeSpan.appendChild(scopeLabel);
         scopesEl === null || scopesEl === void 0 ? void 0 : scopesEl.appendChild(scopeSpan);
     });
-};
-var makeSitesHTML = function (_a, user) {
-    var ssoSites = _a.ssoSites;
-    if (user.type == "LoggedIn") {
-        var sites = ssoSites.split(",").map(function (str) { return str.trim(); });
-        var sitesEl_1 = document.getElementById("sites");
-        if (sitesEl_1) {
-            sitesEl_1.innerHTML = "";
-        }
-        sites.forEach(function (site) {
-            var anchor = document.createElement("a");
-            anchor.setAttribute("href", site);
-            anchor.innerText = site;
-            sitesEl_1 === null || sitesEl_1 === void 0 ? void 0 : sitesEl_1.appendChild(anchor);
-        });
-    }
 };
 function makeNotLoggedInHTML(model) {
     var anchor = document.createElement("a");
@@ -396,14 +374,13 @@ function makeUserHTML(model, user) {
 function handleInputEvent(key) {
     return function () {
         var model = getModel();
-        var user = getUser();
         var el = document.getElementById(key);
         var value = el.value;
         if (value && key !== "scopes") {
             //@ts-ignore
             model[key] = value;
             setModel(model);
-            applyModel(model, user);
+            applyModel(model);
         }
     };
 }
@@ -416,7 +393,6 @@ function setFields(model) {
     setField("authenticationDomain", model.authenticationDomain);
     setField("userPoolId", model.userPoolId);
     setField("client_id", model.client_id);
-    setField("ssoSites", model.ssoSites);
     setField("redirectURI", model.redirectURI);
 }
 function attachEventListener(key) {
@@ -427,13 +403,11 @@ function attachEventListeners() {
     attachEventListener("authenticationDomain");
     attachEventListener("client_id");
     attachEventListener("userPoolId");
-    attachEventListener("ssoSites");
     attachEventListener("redirectURI");
 }
-function applyModel(model, user) {
+function applyModel(model) {
     setFields(model);
     makeScopes(model);
-    makeSitesHTML(model, user);
 }
 function applyUser(model, user) {
     makeUserHTML(model, user);
@@ -457,7 +431,7 @@ function handleCode(model) {
             console.log(history.replaceState({}, '', thisUrl));
             setUser(user);
             var latestModel = getModel();
-            applyModel(latestModel, user);
+            applyModel(latestModel);
             applyUser(latestModel, user);
         });
     }
@@ -466,7 +440,7 @@ function handleCode(model) {
     var model = getModel();
     var user = getUser();
     attachEventListeners();
-    applyModel(model, user);
+    applyModel(model);
     applyUser(model, user);
     handleCode(model);
 })();

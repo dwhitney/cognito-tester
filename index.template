@@ -191,15 +191,10 @@
     </div>
     <p>This one is a bit confusing. Currently this can be found in the "User Pools" dashboard by clicking "App client settings". At the top, it's the value labeled "ID", <em>*not*</em> the one label "App Client"</p>
     <div class="form-row">
-      <label for="ssoSites">SSO Sites</label>
-      <input type="text" id="ssoSites"/>
-    </div>
-    <p>The scopes you'd like from Cognito/OAuth</p>
-    <div class="form-row">
       <label>Scope</label>
       <span id="scopes"></span>
     </div>
-    <p>This is a comma separated list of the sites participating in SSO. This is just here as a conveniance - it makes the links below</p>
+    <p>The scopes you'd like from Cognito/OAuth</p>
     <div id="sites"></div>
     <hr/>
     <div id="user" class="user"></div>

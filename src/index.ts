@@ -18,7 +18,6 @@ type Model =
   { authenticationDomain: string,
     client_id: string,
     userPoolId: string
-    ssoSites: string,
     redirectURI: string,
     scopes: Scope[]
   }
@@ -30,7 +29,6 @@ function defaultModel(): Model{
     authenticationDomain: "",
     client_id: "",
     userPoolId: "",
-    ssoSites: "",
     redirectURI,
     scopes: [ "email", "phone", "openid", "profile" ]
   })
@@ -78,7 +76,7 @@ function addScope(scope: Scope, checked: boolean){
     if(!checked) scopes = scopes.concat([scope])
     model.scopes = scopes
     setModel(model)
-    applyModel(model, user) 
+    applyModel(model) 
     applyUser(model, user)
   }
 }
@@ -102,20 +100,6 @@ const makeScopes = ({ scopes } : Model) => {
     scopeSpan.appendChild(scopeLabel)
     scopesEl?.appendChild(scopeSpan)
   })
-}
-
-const makeSitesHTML = ({ ssoSites }: Model, user: User) => {
-  if(user.type == "LoggedIn"){
-    const sites = ssoSites.split(",").map(str => str.trim())
-    const sitesEl = document.getElementById("sites")
-    if(sitesEl){ sitesEl.innerHTML = ""}
-    sites.forEach(site => {
-      const anchor = document.createElement("a")
-      anchor.setAttribute("href", site)
-      anchor.innerText = site;
-      sitesEl?.appendChild(anchor)
-    })
-  }
 }
 
 function makeNotLoggedInHTML(model: Model){
@@ -225,14 +209,13 @@ function makeUserHTML(model: Model, user: User): void{
 function handleInputEvent<K extends keyof Model>(key: K){
   return function(){
     const model = getModel()
-    const user = getUser()
     const el = document.getElementById(key)
     const value = (el as HTMLInputElement).value
     if(value && key !== "scopes"){
       //@ts-ignore
       model[key] = value
       setModel(model)
-      applyModel(model, user)
+      applyModel(model)
     }
   }
 }
@@ -246,7 +229,6 @@ function setFields(model: Model){
   setField("authenticationDomain", model.authenticationDomain)
   setField("userPoolId", model.userPoolId)
   setField("client_id", model.client_id)
-  setField("ssoSites", model.ssoSites)
   setField("redirectURI", model.redirectURI)
 }
 
@@ -259,14 +241,12 @@ function attachEventListeners(){
   attachEventListener("authenticationDomain")
   attachEventListener("client_id")
   attachEventListener("userPoolId")
-  attachEventListener("ssoSites")
   attachEventListener("redirectURI")
 }
 
-function applyModel(model: Model, user: User){
+function applyModel(model: Model){
   setFields(model)
   makeScopes(model)
-  makeSitesHTML(model, user)
 }
 
 function applyUser(model: Model, user: User){
@@ -293,7 +273,7 @@ function handleCode(model: Model){
       console.log(history.replaceState({}, '', thisUrl))
       setUser(user)
       const latestModel = getModel()
-      applyModel(latestModel, user)
+      applyModel(latestModel)
       applyUser(latestModel, user)
     })
   }
@@ -303,7 +283,7 @@ function handleCode(model: Model){
   const model = getModel()
   const user = getUser()
   attachEventListeners()
-  applyModel(model, user)
+  applyModel(model)
   applyUser(model, user)
   handleCode(model)
 })()
