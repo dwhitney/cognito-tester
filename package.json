@@ -1,0 +1,14 @@
+{
+  "name": "cognito-tester",
+  "version": "1.0.0",
+  "description": "A simple web application to test Cognito",
+  "scripts": {
+    "build": "npx tsc",
+    "bundle": "bash bundle.sh > index.html",
+    "start": "python3 -m http.server 1234"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.9.6"
+  }
+}
