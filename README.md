@@ -12,4 +12,4 @@ Once the file is deployed and opened in a web browser, users are prompted to ent
 * npm install
 * npm run build
 * npm run bundle
-* npm run start
+* npm start
